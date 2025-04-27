@@ -1,4 +1,4 @@
-FROM nvidia/cuda:12.4.1-runtime-ubuntu22.04
+FROM nvidia/cuda:12.6.1-runtime-ubuntu22.04
 LABEL org.opencontainers.image.source https://github.com/Yummiii/sd-webui-forge-docker
 WORKDIR /app
 RUN apt update && apt upgrade -y
