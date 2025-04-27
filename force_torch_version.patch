@@ -1,0 +1,26 @@
+diff --git a/modules/launch_utils.py b/modules/launch_utils.py
+index 1234567..89abcde 100644
+--- a/modules/launch_utils.py
++++ b/modules/launch_utils.py
+@@ def prepare_environment():
+-    torch_command = None
+-    force_cuda = None
++    import os
++    torch_command = None
++    force_cuda = None
++
++    # 从环境变量读取 TORCH_COMMAND 和 FORCE_CUDA
++    env_torch_command = os.environ.get('TORCH_COMMAND')
++    env_force_cuda = os.environ.get('FORCE_CUDA')
++
++    if env_torch_command:
++        print(f"[force_torch_version.patch] 检测到环境变量 TORCH_COMMAND: {env_torch_command}")
++        torch_command = env_torch_command
++    else:
++        print(f"[force_torch_version.patch] 未检测到 TORCH_COMMAND，使用默认安装流程")
++
++    if env_force_cuda:
++        print(f"[force_torch_version.patch] 检测到环境变量 FORCE_CUDA: {env_force_cuda}")
++        force_cuda = env_force_cuda
++    else:
++        print(f"[force_torch_version.patch] 未检测到 FORCE_CUDA，使用默认 CUDA 处理")
