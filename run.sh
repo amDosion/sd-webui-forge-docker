@@ -87,9 +87,11 @@ cat "$REQ_FILE"
 # ---------------------------------------------------
 echo "🔍 创建并激活虚拟环境..."
   python3 -m venv venv
-  source ./venv/bin/activate
-  pip install insightface
-  deactivate
+   source ./venv/bin/activate
+   python -m pip install --upgrade pip
+   pip install insightface
+ deactivate
+
 # ---------------------------------------------------
 # 退出虚拟环境
 # ---------------------------------------------------
