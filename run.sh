@@ -34,7 +34,7 @@ else
 fi
 
 # 设置环境变量，强制使用固定 Torch 版本
-export TORCH_COMMAND="pip install torch==2.6.0+cu126 torchvision==0.21.0+cu126 torchaudio==2.6.0+cu126 --extra-index-url https://download.pytorch.org/whl/cu126"
+export TORCH_COMMAND="pip install torch==2.6.0 torchvision==0.21.0 torchaudio==2.6.0 --extra-index-url https://download.pytorch.org/whl/cu126"
 export FORCE_CUDA="126"
 
 # ---------------------------------------------------
