@@ -2,7 +2,7 @@
 # ================================================================
 # 📦 0.1 基础镜像：cuda:12.6.3-cudnn-devel-ubuntu22.04
 # ================================================================
-FROM pytorch/pytorch:2.6.0-cuda12.6-cudnn9-devel
+FROM pytorch/pytorch:2.7.0-cuda12.8-cudnn9-devel
 
 WORKDIR /app
 # ================================================================
@@ -50,11 +50,11 @@ RUN echo "🔧 [2.1] 安装 Python 3.11 及系统依赖..." && \
 RUN echo "🔧 [3.1] 安装 PyTorch Nightly..." && \
     python3.11 -m pip install --upgrade pip && \
     python3.11 -m pip install \
-        torch==2.6.0+cu126 \
-        torchvision==0.21.0+cu126 \
-        torchaudio==2.6.0+cu126 \
-        torch-tensorrt==2.6.0+cu126 \
-        --extra-index-url https://download.pytorch.org/whl/cu126 \
+        torch==2.7.0+cu128 \
+        torchvision==0.22.0+cu128 \
+        torchaudio==2.7.0+cu128 \
+        torch-tensorrt==2.7.0+cu128 \
+        --extra-index-url https://download.pytorch.org/whl/cu128 \
         --no-cache-dir && \
     rm -rf /root/.cache /tmp/* ~/.cache && \
     echo "✅ [3.1] PyTorch 安装完成"
