@@ -58,6 +58,7 @@ add_or_replace_requirement() {
 }
 
 # 推荐依赖版本（将统一写入或替换）
+add_or_replace_requirement "torch" "2.7.0+cu128"
 add_or_replace_requirement "insightface" "0.7.3"
 add_or_replace_requirement "xformers" "0.0.29.post3"
 add_or_replace_requirement "diffusers" "0.31.0"
