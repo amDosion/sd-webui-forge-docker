@@ -53,7 +53,6 @@ RUN echo "🔧 [3.1] 安装 PyTorch Nightly..." && \
         torch==2.7.0+cu128 \
         torchvision==0.22.0+cu128 \
         torchaudio==2.7.0+cu128 \
-        torch-tensorrt==2.7.0+cu128 \
         --extra-index-url https://download.pytorch.org/whl/cu128 \
         --no-cache-dir && \
     rm -rf /root/.cache /tmp/* ~/.cache && \
