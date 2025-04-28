@@ -34,8 +34,8 @@ else
 fi
 
 # 设置环境变量，强制使用固定 Torch 版本
-export TORCH_COMMAND="pip install torch==2.6.0+126 --extra-index-url https://download.pytorch.org/whl/cu126"
-export FORCE_CUDA="126"
+export TORCH_COMMAND="pip install torch==2.7.0+128 --extra-index-url https://download.pytorch.org/whl/cu128"
+export FORCE_CUDA="128"
 
 # ---------------------------------------------------
 # requirements_versions.txt 修复
