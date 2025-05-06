@@ -24,3 +24,32 @@ index 1234567..89abcde 100644
 +        force_cuda = env_force_cuda
 +    else:
 +        print(f"[force_torch_version.patch] 未检测到 FORCE_CUDA，使用默认 CUDA 处理")
+
+@@ def prepare_environment():
++    # 从环境变量读取 XFORMERS_VERSION 和 XFORMERS_WHEEL_URL
++    env_xformers_version = os.environ.get('XFORMERS_VERSION', '0.0.30+0b3963ad')
++    env_xformers_url = os.environ.get('XFORMERS_WHEEL_URL')
+
+-    if (not is_installed("xformers") or args.reinstall_xformers) and args.xformers:
+-        run_pip(f"install -U -I --no-deps {xformers_package}", "xformers")
+-        startup_timer.record("install xformers")
++    if args.xformers:
++        try:
++            import importlib.metadata as metadata
++            xformers_version = metadata.version("xformers")
++        except Exception:
++            xformers_version = None
++
++        if args.reinstall_xformers or xformers_version != env_xformers_version:
++            print(f"[force_xformers_version.patch] 当前 xformers 版本: {xformers_version or '未安装'}")
++            if xformers_version:
++                run_pip("uninstall -y xformers", "uninstall xformers")
++            if env_xformers_url:
++                print(f"[force_xformers_version.patch] 安装指定 XFORMERS_WHEEL_URL: {env_xformers_url}")
++                run_pip(f"install -U -I --no-deps {env_xformers_url}", "xformers")
++            else:
++                print(f"[force_xformers_version.patch] 未设置 XFORMERS_WHEEL_URL，回退使用默认包")
++                run_pip(f"install -U -I --no-deps {xformers_package}", "xformers")
++            startup_timer.record("install xformers")
++        else:
++            print(f"[force_xformers_version.patch] 已安装目标版本 xformers=={env_xformers_version}，跳过安装")
