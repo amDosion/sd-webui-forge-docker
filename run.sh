@@ -399,6 +399,27 @@ echo "🔍 创建并激活虚拟环境..."
    source ./venv/bin/activate
    python -m pip install --upgrade pip
    pip install insightface
+
+
+TARGET_VERSION="0.0.30+0b3963ad"
+
+# 获取当前已安装的 xformers 版本（如果有）
+INSTALLED_VERSION=$(python -c "import importlib.metadata as m; print(m.version('xformers'))" 2>/dev/null || echo "none")
+
+if [ "$INSTALLED_VERSION" = "$TARGET_VERSION" ]; then
+    echo "xformers $TARGET_VERSION already installed. Skipping installation."
+else
+    if [ "$INSTALLED_VERSION" != "none" ]; then
+        echo "Detected xformers version $INSTALLED_VERSION. Uninstalling..."
+        pip uninstall -y xformers
+    else
+        echo "xformers not currently installed."
+    fi
+
+    echo "Installing xformers $TARGET_VERSION..."
+    pip install https://huggingface.co/Alissonerdx/xformers-0.0.30-torch2.7.0-cuda12.8/resolve/main/xformers-0.0.30%2B0b3963ad.d20250210-cp312-cp312-linux_x86_64.whl
+fi
+
 -------------------------------------------------
 # 退出虚拟环境
 # ---------------------------------------------------
