@@ -1,4 +1,5 @@
 # ======== 插件 extensions/ ========
+extensions/sd-forge-fluxtools,https://github.com/AcademiaSD/sd-forge-fluxtools-v2.git
 extensions/sd-forge-layerdiffuse,https://github.com/lllyasviel/sd-forge-layerdiffuse.git
 extensions/sd-webui-infinite-image-browsing,https://github.com/zanllp/sd-webui-infinite-image-browsing.git
 extensions/sd-webui-prompt-all-in-one,https://github.com/Physton/sd-webui-prompt-all-in-one.git
