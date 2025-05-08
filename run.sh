@@ -136,11 +136,13 @@ add_or_replace_requirement() {
 # 推荐依赖版本
 add_or_replace_requirement "torch" "2.6.0"
 add_or_replace_requirement "xformers" "0.0.29.post3"
-add_or_replace_requirement "diffusers" "0.31.0"
+add_or_replace_requirement "diffusers" "0.33.0"
 add_or_replace_requirement "torchdiffeq" "0.2.3"
 add_or_replace_requirement "torchsde" "0.2.6"
 add_or_replace_requirement "protobuf" "4.25.3"
 add_or_replace_requirement "pydantic" "2.6.4"
+add_or_replace_requirement "dill" "0.4.0"
+add_or_replace_requirement "controlnet-aux" "0.0.10"
 add_or_replace_requirement "open-clip-torch" "2.24.0"
 
 check_gitpython_version() {
