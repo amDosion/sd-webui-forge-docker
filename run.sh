@@ -164,24 +164,34 @@ cd "$TARGET_DIR"
 chmod -R 777 .
 
 echo "🐍 [6] 虚拟环境检查..."
+
 if [ ! -x "venv/bin/activate" ]; then
   echo "📦 创建 venv..."
   python3 -m venv venv
+
+  echo "🔧 激活 venv..."
+  # shellcheck source=/dev/null
   source venv/bin/activate
-echo "🔧 [6.1.1] 安装 insightface 工具..."
-# ---------------------------------------------------
-# 安装 insightface 工具
-# ---------------------------------------------------
-echo "🔍 检查 insightface 是否已安装..."
-if python -m pip show insightface | grep -q "Version"; then
-  echo "✅ insightface 已安装，跳过安装"
-else
-  echo "📦 安装 insightface..."
-  python -m pip install --upgrade "insightface"
-fi
+
+  echo "🔧 [6.1.1] 安装工具包：insightface, huggingface_hub[cli]..."
+
+  # ---------------------------------------------------
+  # 安装工具包（insightface 和 huggingface-cli）
+  # ---------------------------------------------------
+  for pkg in insightface "huggingface_hub[cli]"; do
+    echo "🔍 检查 $pkg 是否已安装..."
+    base_pkg=$(echo "$pkg" | cut -d '[' -f 1)
+    if python -m pip show "$base_pkg" | grep -q "Version"; then
+      echo "✅ $pkg 已安装，跳过安装"
+    else
+      echo "📦 安装 $pkg..."
+      python -m pip install --upgrade "$pkg"
+    fi
+  done
 
   echo "📦 venv 安装完成 ✅"
   deactivate
+
 else
   echo "✅ venv 已存在，跳过创建和安装"
 fi
@@ -230,7 +240,7 @@ mkdir -p /app/webui
 
 if [ ! -f "$RESOURCE_PATH" ]; then
   echo "📥 下载默认 resources.txt..."
-  curl -fsSL -o "$RESOURCE_PATH" https://raw.githubusercontent.com/amDosion/sd-webui-forge-docker/master/resources.txt
+  curl -fsSL -o "$RESOURCE_PATH" https://raw.githubusercontent.com/amDosion/forage/main/resources.txt
 else
   echo "✅ 使用本地 resources.txt"
 fi
@@ -285,22 +295,44 @@ while IFS=, read -r dir url; do
   esac
 done < "$RESOURCE_PATH"
 
-# ---------------------------------------------------
-# 权限令牌
-# ---------------------------------------------------
-echo "🔐 [10] 权限登录检查..."
+# ==================================================
+# Token 处理 (Hugging Face, Civitai)
+# ==================================================
+# 步骤号顺延为 [10]
+echo "🔐 [10] 处理 API Tokens (如果已提供)..."
+
+# 处理 Hugging Face Token (如果环境变量已设置)
 if [[ -n "$HUGGINGFACE_TOKEN" ]]; then
-  echo "$HUGGINGFACE_TOKEN" | huggingface-cli login --token || echo "⚠️ HuggingFace 登录失败"
+  echo "  - 检测到 HUGGINGFACE_TOKEN，尝试使用 huggingface-cli 登录..."
+  # 检查 huggingface-cli 命令是否存在 (应由 huggingface_hub[cli] 提供)
+  if command -v huggingface-cli &>/dev/null; then
+      # 正确用法：将 token 作为参数传递给 --token
+      huggingface-cli login --token "$HUGGINGFACE_TOKEN" --add-to-git-credential
+      # 检查命令执行是否成功
+      if [ $? -eq 0 ]; then
+          echo "  - ✅ Hugging Face CLI 登录成功。"
+      else
+          # 登录失败通常不会是致命错误，只记录警告
+          echo "  - ⚠️ Hugging Face CLI 登录失败。请检查 Token 是否有效、是否过期或 huggingface-cli 是否工作正常。"
+      fi
+  else
+      echo "  - ⚠️ 未找到 huggingface-cli 命令，无法登录。请确保依赖 'huggingface_hub[cli]' 已正确安装在 venv 中。"
+  fi
+else
+  # 如果未提供 Token
+  echo "  - ⏭️ 未设置 HUGGINGFACE_TOKEN 环境变量，跳过 Hugging Face 登录。"
 fi
 
+# 检查 Civitai API Token
 if [[ -n "$CIVITAI_API_TOKEN" ]]; then
-  echo "🔐 CIVITAI_API_TOKEN 读取成功，长度：${#CIVITAI_API_TOKEN}"
+  echo "  - ✅ 检测到 CIVITAI_API_TOKEN (长度: ${#CIVITAI_API_TOKEN})。"
+else
+  echo "  - ⏭️ 未设置 CIVITAI_API_TOKEN 环境变量。"
 fi
-
 
 # ---------------------------------------------------
 # 🔥 启动最终服务（FIXED!）
 # ---------------------------------------------------
 echo "🚀 [11] 所有准备就绪，启动 webui.sh ..."
 
-exec bash webui.sh -f $ARGS
+exec bash webui.sh $ARGS
