@@ -230,7 +230,7 @@ mkdir -p /app/webui
 
 if [ ! -f "$RESOURCE_PATH" ]; then
   echo "📥 下载默认 resources.txt..."
-  curl -fsSL -o "$RESOURCE_PATH" https://raw.githubusercontent.com/amDosion/forage/main/resources.txt
+  curl -fsSL -o "$RESOURCE_PATH" https://raw.githubusercontent.com/amDosion/sd-webui-forge-docker/master/resources.txt
 else
   echo "✅ 使用本地 resources.txt"
 fi
