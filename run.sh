@@ -243,19 +243,54 @@ mkdir -p /app/webui
 
 if [ ! -f "$RESOURCE_PATH" ]; then
   echo "📥 下载默认 resources.txt..."
-  curl -fsSL -o "$RESOURCE_PATH" https://raw.githubusercontent.com/amDosion/forage/main/resources.txt
+  curl -fsSL -o "$RESOURCE_PATH" https://raw.githubusercontent.com/amDosion/sd-webui-forge-docker/master/resources.txt
 else
   echo "✅ 使用本地 resources.txt"
 fi
 
+declare -A RESOURCE_DECLARED_PATHS
+
+while IFS=, read -r target_path source_url || [[ -n "$target_path" ]]; do
+  target_path=$(echo "$target_path" | xargs)
+  source_url=$(echo "$source_url" | xargs)
+
+  [[ "$target_path" =~ ^#.*$ || -z "$target_path" || -z "$source_url" ]] && continue
+
+  if [[ "$target_path" == extensions/* ]]; then
+    full_path="$TARGET_DIR/$target_path"
+    RESOURCE_DECLARED_PATHS["$full_path"]=1
+  fi
+done < "$RESOURCE_PATH"
+
 clone_or_update_repo() {
-  local dir="$1"; local repo="$2"
-  if [ -d "$dir/.git" ]; then
-    echo "🔁 更新 $dir"
-    git -C "$dir" pull --ff-only || echo "⚠️ Git update failed: $dir"
-  elif [ ! -d "$dir" ]; then
-    echo "📥 克隆 $repo → $dir"
-    git clone --depth=1 "$repo" "$dir"
+  local dir="$1"
+  local repo="$2"
+  local full_path="$TARGET_DIR/$dir"
+
+  # 仅对 extensions/* 执行声明判断逻辑
+  if [[ "$dir" == extensions/* ]]; then
+    if [ -d "$full_path" ]; then
+      if [[ -z "${RESOURCE_DECLARED_PATHS[$full_path]}" ]]; then
+        echo "⏭️ 跳过本地未声明插件: $full_path"
+        return
+      fi
+
+      if [ -d "$full_path/.git" ]; then
+        echo "🔁 更新插件: $full_path"
+        if ! git -C "$full_path" diff --quiet || ! git -C "$full_path" diff --cached --quiet; then
+          echo "⚠️ 跳过更新：$full_path 存在本地未提交修改"
+          return
+        fi
+        git -C "$full_path" pull --ff-only || echo "⚠️ Git pull 失败: $full_path"
+      else
+        echo "⚠️ 非 Git 插件目录存在: $full_path，跳过处理"
+      fi
+    else
+      echo "📥 克隆插件: $repo → $full_path"
+      git clone --depth=1 "$repo" "$full_path"
+    fi
+  else
+    echo "❌ 非 extensions 路径传入 clone_or_update_repo: $dir"
   fi
 }
 
@@ -303,6 +338,8 @@ done < "$RESOURCE_PATH"
 # ==================================================
 # 步骤号顺延为 [10]
 echo "🔐 [10] 处理 API Tokens (如果已提供)..."
+# shellcheck source=/dev/null
+source venv/bin/activate
 
 # 处理 Hugging Face Token (如果环境变量已设置)
 if [[ -n "$HUGGINGFACE_TOKEN" ]]; then
@@ -332,6 +369,7 @@ if [[ -n "$CIVITAI_API_TOKEN" ]]; then
 else
   echo "  - ⏭️ 未设置 CIVITAI_API_TOKEN 环境变量。"
 fi
+deactivate
 
 # ---------------------------------------------------
 # 🔥 启动最终服务（FIXED!）
