@@ -193,19 +193,16 @@ if [ ! -x "venv/bin/activate" ]; then
   # ---------------------------------------------------
   # 安装工具包（insightface 和 huggingface-cli）
   # ---------------------------------------------------
-  for pkg in insightface "huggingface_hub[cli]"; do
-    echo "🔍 检查 $pkg 是否已安装..."
-    base_pkg=$(echo "$pkg" | cut -d '[' -f 1)
-    if python -m pip show "$base_pkg" | grep -q "Version"; then
-      echo "✅ $pkg 已安装，跳过安装"
-    else
-      echo "📦 安装 $pkg..."
-      python -m pip install --upgrade "$pkg"
-    fi
-  done
+echo "🔍 检查 insightface 是否已安装..."
+if python -m pip show insightface | grep -q "Version"; then
+  echo "✅ insightface 已安装，跳过安装"
+else
+  echo "📦 安装 insightface..."
+  python -m pip install --upgrade insightface
+fi
 
-  echo "📦 venv 安装完成 ✅"
-  deactivate
+echo "📦 venv 安装完成 ✅"
+deactivate
 
 else
   echo "✅ venv 已存在，跳过创建和安装"
@@ -344,44 +341,6 @@ while IFS=, read -r dir url; do
       ;;
   esac
 done < "$RESOURCE_PATH"
-
-# ==================================================
-# Token 处理 (Hugging Face, Civitai)
-# ==================================================
-# 步骤号顺延为 [10]
-echo "🔐 [10] 处理 API Tokens (如果已提供)..."
-# shellcheck source=/dev/null
-source venv/bin/activate
-
-# 处理 Hugging Face Token (如果环境变量已设置)
-if [[ -n "$HUGGINGFACE_TOKEN" ]]; then
-  echo "  - 检测到 HUGGINGFACE_TOKEN，尝试使用 huggingface-cli 登录..."
-  # 检查 huggingface-cli 命令是否存在 (应由 huggingface_hub[cli] 提供)
-  if command -v huggingface-cli &>/dev/null; then
-      # 正确用法：将 token 作为参数传递给 --token
-      huggingface-cli login --token "$HUGGINGFACE_TOKEN" --add-to-git-credential
-      # 检查命令执行是否成功
-      if [ $? -eq 0 ]; then
-          echo "  - ✅ Hugging Face CLI 登录成功。"
-      else
-          # 登录失败通常不会是致命错误，只记录警告
-          echo "  - ⚠️ Hugging Face CLI 登录失败。请检查 Token 是否有效、是否过期或 huggingface-cli 是否工作正常。"
-      fi
-  else
-      echo "  - ⚠️ 未找到 huggingface-cli 命令，无法登录。请确保依赖 'huggingface_hub[cli]' 已正确安装在 venv 中。"
-  fi
-else
-  # 如果未提供 Token
-  echo "  - ⏭️ 未设置 HUGGINGFACE_TOKEN 环境变量，跳过 Hugging Face 登录。"
-fi
-
-# 检查 Civitai API Token
-if [[ -n "$CIVITAI_API_TOKEN" ]]; then
-  echo "  - ✅ 检测到 CIVITAI_API_TOKEN (长度: ${#CIVITAI_API_TOKEN})。"
-else
-  echo "  - ⏭️ 未设置 CIVITAI_API_TOKEN 环境变量。"
-fi
-deactivate
 
 # ---------------------------------------------------
 # 🔥 启动最终服务（FIXED!）
