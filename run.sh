@@ -37,14 +37,6 @@ else
   exit 1
 fi
 
-# pip 检查
-if command -v pip3 &>/dev/null; then
-  echo "✅ pip3 版本: $(pip3 --version)"
-else
-  echo "❌ pip3 未安装！请在 Dockerfile 中添加 python3-pip"
-  exit 1
-fi
-
 # CUDA & GPU 检查（使用 nvidia-smi 原始图表）
 if command -v nvidia-smi &>/dev/null; then
   echo "✅ nvidia-smi 检测成功，GPU 原始信息如下："
@@ -54,7 +46,6 @@ if command -v nvidia-smi &>/dev/null; then
 else
   echo "⚠️ 未检测到 nvidia-smi（可能无 GPU 或驱动未安装）"
 fi
-
 
 # 容器检测
 if [ -f "/.dockerenv" ]; then
